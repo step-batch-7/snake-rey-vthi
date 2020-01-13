@@ -102,6 +102,17 @@ class Game {
     this.snake.turnRight();
   }
 
+  getSnake() {
+    return {location: this.snake.location, species: this.snake.species};
+  }
+
+  getGhostSnake() {
+    return {
+      location: this.ghostSnake.location,
+      species: this.ghostSnake.species
+    };
+  }
+
   currentStatus() {
     const gameState = {
       snake: {
@@ -253,8 +264,8 @@ const eraseTails = function(game) {
 };
 
 const drawSnakesAndFood = function(game) {
-  drawSnake(game.snake);
-  drawSnake(game.ghostSnake);
+  drawSnake(game.getSnake());
+  drawSnake(game.getGhostSnake());
   drawFood(game.food);
 };
 
