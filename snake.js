@@ -54,4 +54,14 @@ class Snake {
     const crossedHorizontalEdge = headY < 0 || headY >= bottomWall;
     return crossedVerticalEdge || crossedHorizontalEdge;
   }
+
+  hasEatenItself() {
+    const bodyPart = this.positions.slice(0, this.positions.length - 2);
+    return bodyPart.some(part => isEqualPosition(part, this.getHead()));
+  }
 }
+
+const isEqualPosition = function(head, part) {
+  const isEqual = (point1, point2) => point1 == part[point2];
+  return head.every(isEqual);
+};
