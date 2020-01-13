@@ -195,7 +195,6 @@ const handleKeyPress = game => {
     ArrowRight: EAST,
     ArrowLeft: WEST
   };
-  console.log(moves[event.key], event);
   if (game.snake.direction.heading == (moves[event.key] + 1) % 4) {
     game.turnSnakeRight();
   }
