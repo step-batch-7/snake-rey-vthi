@@ -113,6 +113,10 @@ class Game {
     };
   }
 
+  getFood() {
+    return {position: this.food.position};
+  }
+
   currentStatus() {
     const gameState = {
       snake: {
@@ -266,7 +270,7 @@ const eraseTails = function(game) {
 const drawSnakesAndFood = function(game) {
   drawSnake(game.getSnake());
   drawSnake(game.getGhostSnake());
-  drawFood(game.food);
+  drawFood(game.getFood());
 };
 
 const animateSnakes = game => {
