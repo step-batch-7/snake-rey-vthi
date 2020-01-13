@@ -3,28 +3,6 @@ const NORTH = 1;
 const WEST = 2;
 const SOUTH = 3;
 
-class Direction {
-  constructor(initialHeading) {
-    this.heading = initialHeading;
-    this.deltas = {};
-    this.deltas[EAST] = [1, 0];
-    this.deltas[WEST] = [-1, 0];
-    this.deltas[NORTH] = [0, -1];
-    this.deltas[SOUTH] = [0, 1];
-  }
-
-  get delta() {
-    return this.deltas[this.heading];
-  }
-
-  turnRight() {
-    this.heading = (this.heading + 3) % 4;
-  }
-  turnLeft() {
-    this.heading = (this.heading + 1) % 4;
-  }
-}
-
 class Snake {
   constructor(positions, direction, type) {
     this.positions = positions.slice();
@@ -68,60 +46,6 @@ class Snake {
     const [deltaX, deltaY] = this.direction.delta;
 
     this.positions.push([headX + deltaX, headY + deltaY]);
-  }
-}
-
-class Food {
-  constructor(colId, rowId) {
-    this.colId = colId;
-    this.rowId = rowId;
-  }
-
-  get position() {
-    return [this.colId, this.rowId];
-  }
-}
-
-class Game {
-  constructor(snake, ghostSnake, food) {
-    this.snake = snake;
-    this.ghostSnake = ghostSnake;
-    this.food = food;
-  }
-
-  getNewFood(width, height) {
-    const newFoodX = Math.floor(Math.random() * width);
-    const newFoodY = Math.floor(Math.random() * height);
-    return new Food(newFoodX, newFoodY);
-  }
-
-  update() {
-    this.snake.move();
-    this.ghostSnake.move();
-    if (isFoodEaten(this.snake.getHead(), this.food.position)) {
-      this.food = this.getNewFood(50, 30);
-      this.snake.positions.push(getNewSnakeTail(this.snake));
-    }
-  }
-
-  snakeDirection() {
-    return this.snake.direction.heading;
-  }
-
-  turnSnakeLeft() {
-    this.snake.turnLeft();
-  }
-
-  turnSnakeRight() {
-    this.snake.turnRight();
-  }
-
-  currentStatus() {
-    const state = {};
-    state.snake = this.snake.getState();
-    state.ghostSnake = this.ghostSnake.getState();
-    state.food = {location: this.food.position};
-    return state;
   }
 }
 
@@ -274,7 +198,7 @@ const animateSnakes = game => {
 const randomlyTurnSnake = game => {
   let x = Math.random() * 100;
   if (x > 50) {
-    game.ghostSnake.turnLeft();
+    game.turnGhostSnakeLeft();
   }
 };
 
