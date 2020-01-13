@@ -47,5 +47,6 @@ class Snake {
 
     this.positions.push([headX + deltaX, headY + deltaY]);
   }
+  
 }
 
