@@ -94,6 +94,13 @@ class Game {
       this.snake.positions.push(getNewSnakeTail(this.snake));
     }
   }
+  turnSnakeLeft() {
+    this.snake.turnLeft();
+  }
+
+  turnSnakeRight() {
+    this.snake.turnRight();
+  }
 
   currentStatus() {
     const gameState = {
@@ -190,10 +197,10 @@ const handleKeyPress = game => {
   };
   console.log(moves[event.key], event);
   if (game.snake.direction.heading == (moves[event.key] + 1) % 4) {
-    game.snake.turnRight();
+    game.turnSnakeRight();
   }
   if (game.snake.direction.heading == (moves[event.key] + 3) % 4) {
-    game.snake.turnLeft();
+    game.turnSnakeLeft();
   }
 };
 
