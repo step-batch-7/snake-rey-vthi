@@ -53,6 +53,14 @@ class Snake {
     return this.positions[this.positions.length - 1];
   }
 
+  getState() {
+    const state = {};
+    state.location = this.positions.slice();
+    state.species = this.type;
+    state.previousTail = this.previousTail.slice();
+    return state;
+  }
+
   move() {
     const [headX, headY] = this.positions[this.positions.length - 1];
     this.previousTail = this.positions.shift();
@@ -86,14 +94,20 @@ class Game {
     const newFoodY = Math.floor(Math.random() * height);
     return new Food(newFoodX, newFoodY);
   }
+
   update() {
     this.snake.move();
     this.ghostSnake.move();
-    if (areInSameLocation(this.snake.getHead(), this.food.position)) {
+    if (isFoodEaten(this.snake.getHead(), this.food.position)) {
       this.food = this.getNewFood(50, 30);
       this.snake.positions.push(getNewSnakeTail(this.snake));
     }
   }
+
+  snakeDirection() {
+    return this.snake.direction.heading;
+  }
+
   turnSnakeLeft() {
     this.snake.turnLeft();
   }
@@ -102,43 +116,16 @@ class Game {
     this.snake.turnRight();
   }
 
-  getSnake() {
-    return {location: this.snake.location, species: this.snake.species};
-  }
-
-  getGhostSnake() {
-    return {
-      location: this.ghostSnake.location,
-      species: this.ghostSnake.species
-    };
-  }
-
-  getFood() {
-    return {position: this.food.position};
-  }
-
   currentStatus() {
-    const gameState = {
-      snake: {
-        position: this.snake.positions.slice(),
-        direction: this.snake.direction,
-        tail: this.snake.previousTail.slice(),
-        type: this.snake.type
-      },
-      ghostSnake: {
-        position: this.ghostSnake.positions.slice(),
-        direction: this.snake.direction,
-        type: this.ghostSnake.type
-      },
-      food: {
-        position: [this.food.colId, this.food.rowId]
-      }
-    };
-    return gameState;
+    const state = {};
+    state.snake = this.snake.getState();
+    state.ghostSnake = this.ghostSnake.getState();
+    state.food = {location: this.food.position};
+    return state;
   }
 }
 
-const areInSameLocation = function(point1, point2) {
+const isFoodEaten = function(point1, point2) {
   const isXEqual = point1[0] == point2[0];
   const isYEqual = point1[1] == point2[1];
   return isXEqual && isYEqual;
@@ -184,8 +171,9 @@ const eraseTail = function(snake) {
   cell.classList.remove(snake.species);
 };
 
-const eraseFood = function(food) {
-  let [colId, rowId] = food.position;
+const eraseFood = function(game) {
+  const {food} = game;
+  let [colId, rowId] = food.location;
   const cell = getCell(colId, rowId);
   cell.classList.remove('food');
 };
@@ -210,10 +198,11 @@ const handleKeyPress = game => {
     ArrowRight: EAST,
     ArrowLeft: WEST
   };
-  if (game.snake.direction.heading == (moves[event.key] + 1) % 4) {
+
+  if (game.snakeDirection() == (moves[event.key] + 1) % 4) {
     game.turnSnakeRight();
   }
-  if (game.snake.direction.heading == (moves[event.key] + 3) % 4) {
+  if (game.snakeDirection() == (moves[event.key] + 3) % 4) {
     game.turnSnakeLeft();
   }
 };
@@ -240,41 +229,43 @@ const initGhostSnake = () => {
   return new Snake(ghostSnakePosition, new Direction(SOUTH), 'ghost');
 };
 
-const drawSnakeAndFood = function(game) {
-  const {snake, ghostSnake, food} = game;
-  snake.position.forEach(([colId, rowId]) => {
+const drawSnakeAndFood = function(gameState) {
+  const {snake, ghostSnake, food} = gameState;
+  snake.location.forEach(([colId, rowId]) => {
     const cell = getCell(colId, rowId);
     cell.classList.add(snake.type);
   });
-  ghostSnake.position.forEach(([colId, rowId]) => {
+  ghostSnake.location.forEach(([colId, rowId]) => {
     const cell = getCell(colId, rowId);
     cell.classList.add(ghostSnake.type);
   });
-  const [colId, rowId] = food.position;
+  const [colId, rowId] = food.location;
   const cell = getCell(colId, rowId);
   cell.classList.add('food');
 };
 
 const setup = game => {
-  const gameState = game.currentStatus();
   attachEventListeners(game);
   createGrids();
-  drawSnakeAndFood(gameState);
+  drawSnakeAndFood(game.currentStatus());
 };
 
 const eraseTails = function(game) {
-  eraseTail(game.snake);
-  eraseTail(game.ghostSnake);
+  const {snake, ghostSnake} = game.currentStatus();
+  eraseTail(snake);
+  eraseTail(ghostSnake);
 };
 
 const drawSnakesAndFood = function(game) {
-  drawSnake(game.getSnake());
-  drawSnake(game.getGhostSnake());
-  drawFood(game.getFood());
+  const {snake, ghostSnake, food} = game;
+  drawSnake(snake);
+  drawSnake(ghostSnake);
+  drawFood(food);
 };
 
 const animateSnakes = game => {
-  eraseFood(game.food);
+  const currentState = game.currentStatus();
+  eraseFood(currentState);
   game.update();
   eraseTails(game);
   drawSnakesAndFood(game);
