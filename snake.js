@@ -47,6 +47,11 @@ class Snake {
 
     this.positions.push([headX + deltaX, headY + deltaY]);
   }
-  
-}
 
+  isTouchedWall([rightWall, bottomWall]) {
+    const [headX, headY] = this.getHead();
+    const crossedVerticalEdge = headX < 0 || headX >= rightWall;
+    const crossedHorizontalEdge = headY < 0 || headY >= bottomWall;
+    return crossedVerticalEdge || crossedHorizontalEdge;
+  }
+}

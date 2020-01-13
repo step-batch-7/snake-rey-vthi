@@ -1,15 +1,20 @@
 class Game {
-  constructor(snake, ghostSnake, food, score) {
+  constructor(snake, ghostSnake, food, score, boundary) {
     this.snake = snake;
     this.ghostSnake = ghostSnake;
     this.food = food;
     this.score = score;
+    this.boundary = boundary;
   }
 
   getNewFood(width, height) {
     const newFoodX = Math.floor(Math.random() * width);
     const newFoodY = Math.floor(Math.random() * height);
     return new Food(newFoodX, newFoodY);
+  }
+
+  get boundarySize() {
+    return [this.boundary.x, this.boundary.y];
   }
 
   update() {
@@ -45,6 +50,10 @@ class Game {
     state.food = {location: this.food.position};
     state.score = this.score.currentScore;
     return state;
+  }
+
+  isOver() {
+    return this.snake.isTouchedWall(this.boundarySize);
   }
 }
 
@@ -177,15 +186,6 @@ const setup = game => {
   displayScore(game);
 };
 
-const animateSnakes = game => {
-  const currentState = game.currentStatus();
-  eraseFood(currentState);
-  game.update();
-  eraseTails(game);
-  drawSnakesAndFood(game);
-  displayScore(game);
-};
-
 const randomlyTurnSnake = game => {
   let x = Math.random() * 100;
   if (x > 50) {
@@ -198,8 +198,23 @@ const main = function() {
   const ghostSnake = initGhostSnake();
   const food = new Food(5, 5);
   const score = new Score();
-  const game = new Game(snake, ghostSnake, food, score);
+  const boundary = {x: 100, y: 60};
+  const game = new Game(snake, ghostSnake, food, score, boundary);
   setup(game);
-  setInterval(animateSnakes, 200, game);
+  const gameLoop = setInterval(
+    () => {
+      eraseFood(game.currentStatus());
+      game.update();
+      if (game.isOver()) {
+        clearInterval(gameLoop);
+        alert('game Over');
+      }
+      eraseTails(game);
+      drawSnakesAndFood(game);
+      displayScore(game);
+    },
+    200,
+    game
+  );
   setInterval(randomlyTurnSnake, 500, game);
 };
