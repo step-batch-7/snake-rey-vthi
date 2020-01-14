@@ -55,9 +55,17 @@ class Game {
   isOver() {
     const isTouchedBoundary = this.snake.isTouchedWall(this.boundarySize);
     const isEatenItself = this.snake.hasEatenItself();
-    return isTouchedBoundary || isEatenItself;
+    const hasTouchedGhostSnake = isTouchedGhost(
+      this.snake.getHead(),
+      this.ghostSnake.location
+    );
+    return isTouchedBoundary || isEatenItself || hasTouchedGhostSnake;
   }
 }
+
+const isTouchedGhost = function(snake, ghostSnake) {
+  return ghostSnake.some(part => snake[0] == part[0] && snake[1] == part[1]);
+};
 
 const isFoodEaten = function(point1, point2) {
   const isXEqual = point1[0] == point2[0];
@@ -149,13 +157,7 @@ const initSnake = () => {
   const snakePosition = [
     [40, 25],
     [41, 25],
-    [42, 25],
-    [43, 25],
-    [44, 25],
-    [45, 25],
-    [46, 25],
-    [47, 25],
-    [48, 25]
+    [42, 25]
   ];
   return new Snake(snakePosition, new Direction(EAST), 'snake');
 };
