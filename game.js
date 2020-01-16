@@ -25,6 +25,10 @@ class Game {
       this.score.update();
       this.snake.positions.push(getNewSnakeTail(this.snake));
     }
+    if (isFoodEaten(this.ghostSnake.getHead(), this.food.position)) {
+      this.food = this.getNewFood(50, 30);
+      this.ghostSnake.positions.push(getNewSnakeTail(this.ghostSnake));
+    }
   }
 
   snakeDirection() {
@@ -198,7 +202,7 @@ const setup = game => {
 
 const randomlyTurnSnake = game => {
   let x = Math.random() * 100;
-  if (x > 50) {
+  if (x > 10) {
     game.turnGhostSnakeLeft();
   }
 };
@@ -206,7 +210,7 @@ const randomlyTurnSnake = game => {
 const main = function() {
   const snake = initSnake();
   const ghostSnake = initGhostSnake();
-  const food = new Food(5, 5);
+  const food = new Food(43, 30);
   const score = new Score();
   const boundary = {x: 100, y: 60};
   const game = new Game(snake, ghostSnake, food, score, boundary);
